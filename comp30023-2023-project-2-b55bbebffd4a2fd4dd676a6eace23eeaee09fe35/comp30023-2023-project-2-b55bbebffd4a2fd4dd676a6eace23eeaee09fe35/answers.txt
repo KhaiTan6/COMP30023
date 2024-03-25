@@ -1,0 +1,28 @@
+Khai Syuen Tan, khaisyuent, 1190030
+
+1. Should the server accept calls from everyone, or just a subset of users?
+Server should accept calls from everyone, but the server has to verify those who connects with it.
+
+2. Should authentication etc. be provided by the RPC framework, or by the functions that use the RPC framework?
+The RPC framework should provide authentication as logically that would make more sense. Users should not be require to handle these.
+
+3. What transport layer protocol should be used? What are the trade-offs?
+TCP should be used as reliability is important. but the trade-offs are higher overhead cost, slower transmission.
+
+4. In which function(s) should the socket(s) be created?
+rpc_init_server and rpc_init_client. The reason being that creating a socket should be done during the initialisation of a client or server.
+
+5. Should rpc_client and rpc_server be allocated dynamically or statically? What are the implications for the client and server code?
+Dynamically.
+
+6. What happens if one host uses big-endian byte order and the other uses little-endian? How does that relate to “network byte order”?
+The "network byte order" would be the standard to follow,for example: both could agree to read in big-endian byte order and whoever uses little-endian has to convert to big-endian before sending to the other host.
+
+
+Protocol description: simple remote function protocol
+
+in a message packet: request code, length of message, message itself
+Types of request: find request, call request, and close request
+Overview: Client should start the conversation, first by sending a request code. If it is a find request, client sends the size of the name of the function and the name of the function; If it is a call request, client sends the information to identify the function and the payload over.
+          Server responds by checking the request code. If find, receives the size of name and name, sends back the handle of the function if it is registered; If call, receives the handle and payload, sends back the results.
+Errors: If there are any errors, the protocol will write to stderr, an error message describing the error.
